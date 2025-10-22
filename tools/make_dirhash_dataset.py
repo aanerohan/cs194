@@ -85,7 +85,7 @@ def populate_dataset(root: Path, total_mb: int, dupe_groups: int, dupe_copies: i
 
     bytes_target = total_mb * 1024 * 1024
     bytes_written = 0
-    created = []
+    created = []    
 
     # 1) Small files (< min-bytes) — should be skipped by the grader
     small_sizes = [13, 99, 257, 511, 777, 1023]

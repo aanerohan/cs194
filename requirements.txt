@@ -6,3 +6,4 @@ sse-starlette
 fastapi>=0.115.0
 starlette
 uvicorn
+agentbeats

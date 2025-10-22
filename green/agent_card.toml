@@ -1,0 +1,17 @@
+name = "TerminalBench dirhash-fast Green"
+url = "http://localhost:9999/"  # set to your public URL
+version = "0.1.0"
+description = "Grades dirhash_fast submissions by building white/, running on dataset, and checking JSON+time."
+
+[capabilities]
+streaming = true
+
+[[skills]]
+id = "grade_dirhash_fast"
+name = "Grade dirhash_fast submission"
+description = "Build white/, run dirhash_fast on dataset, enforce max_seconds, and return pass/fail."
+tags = ["green", "terminalbench", "grading"]
+
+[metadata]
+benchmark = "terminalbench/dirhash-fast"
+

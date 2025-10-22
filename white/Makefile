@@ -12,7 +12,8 @@ dirhash_fast_mt: dirhash_fast_mt.cpp
 # Optional: replace dirhash_fast with the MT build
 fast: dirhash_fast_mt
 	cp -f dirhash_fast_mt dirhash_fast
-
+bad: dirhash_fast_bad.cpp
+	$(CXX) $(CXXFLAGS) $< -o dirhash_fast
 clean:
 	rm -f dirhash_fast dirhash_fast_mt
 

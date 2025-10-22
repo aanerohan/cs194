@@ -71,8 +71,8 @@ class TerminalBenchAgent:
             "/var/run/docker.sock": {"bind": "/var/run/docker.sock", "mode": "rw"},
         }
 
-        # GPU access for harness to run agent with --gpus all
-        device_requests = [DeviceRequest(count=-1, capabilities=[["gpu"]])]
+        # CPU-only harness for dirhash-fast
+        device_requests = None
 
         # Invoke harness CLI (expects tb_harness.py inside harness image)
         cmd = [

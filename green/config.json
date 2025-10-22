@@ -1,4 +1,1 @@
-{
-  "max_seconds": 0.25
-}
-
+{ "max_seconds": 1.0 }

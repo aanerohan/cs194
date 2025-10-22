@@ -1,0 +1,8 @@
+a2a-sdk[http-server]>=0.3.9
+chromadb
+docker
+requests
+sse-starlette
+fastapi>=0.115.0
+starlette
+uvicorn

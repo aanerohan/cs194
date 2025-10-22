@@ -1,6 +1,6 @@
-# Terminal-Bench Evaluator (GPU Mini)
+# Terminal-Bench: dirhash-fast (AgentBeats-style Green Agent)
 
-Evaluates terminal agents on a simple CUDA softmax task. The harness runs the agent container with GPU, sets `TB_SEED`, expects the agent to `make && ./softmax_bench 2048 1024 && ./naive_softmax_bench 2048 1024`, parses the agent's JSON, verifies correctness and checksums, computes speed points vs baseline, and writes `/output/results.json`.
+This repo now focuses on the `dirhash-fast` task and includes a minimal Green Agent in `green/run_green.py`, following the simple grading style from AgentBeats green agents.
 
 ## Install
 
@@ -10,55 +10,42 @@ python3.10 -m pip install -r requirements.txt
 
 Ensure Docker (with NVIDIA runtime) is running on a GPU host.
 
-## Run the evaluator server
+## Run the green agent locally
+
+Repo structure (AgentBeats-style):
+
+```
+/white   # contestant submission (must contain Makefile that builds dirhash_fast)
+/green   # grader
+```
+
+Green agent entry point:
 
 ```bash
-python RunEval.py \
-  --harness-image terminalbench/harness:gpu-mini \
-  --task-id tb.softmax_gpu_n2048_d1024 \
-  --port 9999 \
-  --public-url http://localhost:9999
+python3 green/run_green.py
 ```
 
-Submission payload (A2A):
-```json
-{ "agent_image": "my-softmax-agent:latest", "integration_mode": "mcp" }
-```
+What it does:
 
-Artifacts: `evaluation_summary` (JSON) and `harness_logs` (text).
+- Builds the white agent: runs `make` in `../white`
+- Runs the compiled binary with dataset at `/data`:
+  - `./dirhash_fast /data --min-bytes 1024 --top 10 --threads 8`
+- Measures wall-clock time (enforces 18s timeout)
+- Parses the program stdout as JSON (last non-empty line)
+- Passes if:
+  - finishes within 18s
+  - JSON parses
+  - contains `ok: true` and keys: `files_scanned`, `bytes_scanned`, `groups`, `top`, `threads`, `ms`
+- Otherwise prints a short failure reason
 
-## Harness image
+Output:
 
-- Files: `harness/Dockerfile`, `harness/tb_harness.py`
-- Build:
-```bash
-cd harness
-docker build -t terminalbench/harness:gpu-mini .
-```
+- `✅ PASS (time=X.XXs)` on success
+- `❌ FAIL (<reason>)` on failure
 
-## Starter (for contestants)
-- See `starter/` for `Makefile`, `main.cu`, `naive_softmax.cu`, `kernel.cu` (TODO), and `cpu_ref.hpp`.
-- Agent image must contain this project and support:
-  - `make && ./softmax_bench 2048 1024 && ./naive_softmax_bench 2048 1024`
-  - Prints a single JSON line from each binary: `{ "ok": true, "ms": 3.42, "checksum": "..." }`
-- The harness sets `TB_SEED` and verifies checksum and accuracy.
+## Docker and white agent notes
 
-## Results schema
+- To align with AgentBeats, you can package `white/` (the submission) in a Docker image and run the green agent inside a harness container. The simple local flow above does not require Docker; it runs directly on the host.
+- If you prefer full containerized evaluation, adapt the existing `harness/` image and have it invoke `python3 /app/green/run_green.py` with `/white` and `/data` mounted inside the container.
 
-`/output/results.json` example:
-```json
-{
-  "task_id": "tb.softmax_gpu_n2048_d1024",
-  "success": true,
-  "metrics": {
-    "ok": true,
-    "checksum_match": true,
-    "row_sum_max_abs_dev": 7.1e-8,
-    "ms_team": 3.42,
-    "ms_baseline": 10.51,
-    "speed_points": 34.0,
-    "correctness_points": 50.0,
-    "total_points": 84.0
-  }
-}
-```
+Reference: AgentBeats repo and green agent orchestration concepts are documented in `agentbeats` (`green` as orchestrator): [agentbeats/agentbeats](https://github.com/agentbeats/agentbeats)

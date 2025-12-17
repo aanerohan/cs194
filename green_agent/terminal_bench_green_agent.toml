@@ -1,0 +1,15 @@
+name = "terminal_bench_green_agent"
+description = "Green agent for managing Terminal Bench task evaluation"
+version = "1.0.0"
+
+defaultInputModes = ["text"]
+defaultOutputModes = ["text"]
+
+[capabilities]
+streaming = false
+
+[[skills]]
+id = "task_evaluation"
+name = "Task Evaluation"
+description = "Evaluate white agent performance on Terminal Bench tasks"
+tags = ["evaluation", "terminal-bench"]

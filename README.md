@@ -59,3 +59,44 @@ The green agent checks:
 |-------|--------------|----------|
 | gpt-4o | 19/19 | 100% |
 | gpt-4o-mini | 0/19 | 0% |
+
+## Faithfulness Validation
+### Reproducing Terminal-Bench Baseline Comparison
+
+To validate faithfulness, run the same tasks with both implementations and compare results:
+
+**1. Run with this implementation:**
+```bash
+python launcher.py --model gpt-4o --all-tasks --dataset-path data/tasks --max-workers 1 --results-dir ./results/our_implementation
+```
+
+**2. Run with Terminal-Bench's original harness** (requires Terminal-Bench installation):
+```bash
+# Using Terminal-Bench's official harness
+python -m terminal_bench.run_eval --tasks data/tasks --output baseline_results.jsonl
+```
+
+**3. Compare results** (requires a comparison script):
+```bash
+python scripts/validate_faithfulness.py --baseline baseline_results.jsonl --ours results/our_implementation/gpt-4o.jsonl
+```
+
+### Manual Validation Test Cases
+
+**Test Case 1: Successful Task Completion (dirhash-fast)**
+```bash
+python launcher.py --model gpt-4o --task-ids dirhash-fast --dataset-path data/tasks --max-workers 1
+```
+Expected: `passed=true`, `score=1.0`, all pytest tests pass
+
+**Test Case 2: Failed Task (Incomplete Solution)**
+```bash
+python launcher.py --model gpt-4o --task-ids example-fail-task --dataset-path data/tasks --max-workers 1
+```
+Expected: `passed=false`, `score=0.0`, some pytest tests fail
+
+**Test Case 3: All Tests Pass (Parser Edge Case)**
+```bash
+python launcher.py --model gpt-4o --task-ids example-all-pass-task --dataset-path data/tasks --max-workers 1
+```
+Expected: `passed=true`, `score=1.0`, all tests pass (tests fallback parser)
